@@ -9,6 +9,7 @@ export declare enum RunningState {
     closed = 3,
 }
 export interface Remote {
+    services: any;
     privateServices: any;
     event: EventEmiter;
     cpuUsage: Number;
@@ -17,14 +18,17 @@ export interface Remote {
     runningState: RunningState;
     startTime: Date;
 }
-declare class ServiceController extends BasicService {
-    private readonly jsCode;
-    remote: Remote;
-    constructor(serviceName: string, jsCode: string, port: ConnectionPort);
-    start(): Promise<void>;
+export declare class ServiceController extends BasicService {
+    readonly jsCode: string;
+    protected exportPrivateServices: {
+        close: () => void;
+        stop: () => void;
+    };
+    readonly remote: Remote;
+    constructor(jsCode: string, port: ConnectionPort);
+    execute(): Promise<void>;
     close(): Promise<void>;
     stop(): Promise<void>;
     resume(): Promise<void>;
     protected _receiveEvent(message: MessageData): void;
 }
-export default ServiceController;

@@ -1,7 +1,7 @@
 /**
  * 消息的类型
  */
-export const enum MessageType {
+export enum MessageType {
     invoke,     //调用
     event,      //触发事件
     response    //回复调用

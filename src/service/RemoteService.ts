@@ -8,14 +8,14 @@ import { RunningState } from "./ServiceController";
 import EventEmiter from "../tools/EventEmiter";
 import MessageData from "../tools/MessageData";
 
-abstract class RemoteService extends BasicService {
+export abstract class RemoteService extends BasicService {
 
     onClose = () => true;
     onStop = () => true;
     onResume = () => true;
     onError = (err: Error) => false;
 
-    exportPrivateServices = {
+    protected exportPrivateServices = {
         close: this.close.bind(this),
         stop: this.stop.bind(this),
         resume: this.resume.bind(this),
@@ -26,7 +26,7 @@ abstract class RemoteService extends BasicService {
     };
 
     //远端服务缓存，可自定义一些方法对收到的结果做进一步处理
-    importServicesCache: any = {/*services,event*/};
+    protected importServicesCache: any = {/*services,event*/};
 
     //代理远端服务
     importServices: any = new Proxy<any>(1, {
@@ -89,5 +89,3 @@ abstract class RemoteService extends BasicService {
         }
     }
 }
-
-export default RemoteService;

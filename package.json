@@ -1,28 +1,28 @@
 {
   "name": "remote-service",
   "version": "0.0.1",
-  "description": "s",
+  "description": "A abstract implemention of creating JavaScript cluster application",
   "main": "./bin/index.js",
-  "directories": {
-    "test": "test"
-  },
-  "dependencies": {},
+  "types": "./bin/index.d.ts",
   "devDependencies": {
+    "@types/expect.js": "^0.3.29",
+    "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.13",
+    "expect.js": "^0.3.1",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^2.4.1",
     "gulp-typescript": "^3.1.5",
+    "mocha": "^3.2.0",
     "typescript": "^2.2.2"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mx601595686/remote-service.git"
   },
   "keywords": [
-    "s"
+    "remote",
+    "service",
+    "cluster"
   ],
   "author": "wujingtao",
   "license": "MIT",

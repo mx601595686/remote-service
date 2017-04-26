@@ -27,11 +27,11 @@ export interface Remote {
     startTime: Date;                //远端服务启动事件
 }
 
-export default class ServiceController extends BasicService {
+export class ServiceController extends BasicService {
 
-    private readonly jsCode: string;
+    readonly jsCode: string;
 
-    exportPrivateServices = {
+    protected exportPrivateServices = {
         close: () => {
             this.close();
         },
@@ -40,7 +40,7 @@ export default class ServiceController extends BasicService {
         }
     };
 
-    remote: Remote = {
+    readonly remote: Remote = {
         services: new Proxy<any>(this.sendInvoke.bind(this, false, this.serviceName), {
             get(target, functionName) {
                 return target.bind(undefined, functionName);
