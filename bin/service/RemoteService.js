@@ -1,0 +1,5 @@
+/*
+*   远端的服务初始化器
+*/
+
+//# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZpY2UvUmVtb3RlU2VydmljZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTs7RUFFRSIsImZpbGUiOiJzZXJ2aWNlL1JlbW90ZVNlcnZpY2UuanMiLCJzb3VyY2VzQ29udGVudCI6WyIvKlxyXG4qICAg6L+c56uv55qE5pyN5Yqh5Yid5aeL5YyW5ZmoXHJcbiovXHJcblxyXG4iXX0=

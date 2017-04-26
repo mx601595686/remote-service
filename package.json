@@ -1,0 +1,33 @@
+{
+  "name": "remote-service",
+  "version": "0.0.1",
+  "description": "s",
+  "main": "./bin/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^7.0.13",
+    "gulp": "^3.9.1",
+    "gulp-sourcemaps": "^2.4.1",
+    "gulp-typescript": "^3.1.5",
+    "typescript": "^2.2.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mx601595686/remote-service.git"
+  },
+  "keywords": [
+    "s"
+  ],
+  "author": "wujingtao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mx601595686/remote-service/issues"
+  },
+  "homepage": "https://github.com/mx601595686/remote-service#readme"
+}
