@@ -74,7 +74,7 @@ export default class ServiceController extends BasicService {
         });
     }
 
-    //在远端执行代码，这个代码只能执行一次
+    //在远端执行代码，这个方法只能执行一次
     async execute() {   
         if (this.remote.runningState === RunningState.initialized) {    
             await this.remote.privateServices.execute(this.jsCode);
@@ -84,6 +84,7 @@ export default class ServiceController extends BasicService {
         }
     }
 
+    //关闭远端运行
     async close() {
         await this.remote.privateServices.close();
     }
