@@ -1,5 +1,6 @@
 /*
 *   远端服务控制器
+*   控制器也是一个服务，只不过这个服务只能向它所对应的远端提供服务，同时也只能调用它所对应的远端提供的服务
 */
 
 import BasicService from "./BasicService";
@@ -25,7 +26,7 @@ export interface Remote {
     startTime: Date;                //远端服务启动事件
 }
 
-class ServiceController extends BasicService {
+export default class ServiceController extends BasicService {
 
     private readonly jsCode: string;
 
@@ -49,30 +50,37 @@ class ServiceController extends BasicService {
         memoryUsage: undefined,
         errors: [],
         runningState: RunningState.initialized,
-        startTime: new Date()
+        startTime: undefined
     };
 
     constructor(serviceName: string, jsCode: string, port: ConnectionPort) {
         super(serviceName, port);
         this.jsCode = jsCode;
 
+        //更新硬件资源使用状态
         this.remote.event.on('processUsage', (cpu: number, memory: number) => {
             this.remote.cpuUsage = cpu;
             this.remote.memoryUsage = memory;
         });
 
+        //运行状态发生改变
         this.remote.event.on('runningStateChange', (state: RunningState) => {
             this.remote.runningState = state;
         });
 
+        //远端运行时出现未捕获的异常
         this.remote.event.on('error', (err: any) => {
             this.remote.errors.push(new RemoteError(err));
         });
     }
 
-    async start() {
-        if (this.remote.runningState === RunningState.initialized) {
-            await this.remote.privateServices.start(this.jsCode);
+    //在远端执行代码，这个代码只能执行一次
+    async execute() {   
+        if (this.remote.runningState === RunningState.initialized) {    
+            await this.remote.privateServices.execute(this.jsCode);
+            this.remote.startTime = new Date();
+        }else{
+            throw new Error('code has been executed');
         }
     }
 
@@ -93,5 +101,3 @@ class ServiceController extends BasicService {
         this.remote.event.emit(event.event, event.data);
     }
 }
-
-export default ServiceController;

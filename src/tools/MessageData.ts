@@ -35,7 +35,7 @@ export default class MessageData {
         return result;
     }
 
-    static prepareResponse(invokeMessage: MessageData, err: undefined | Error, returnData?: any) {
+    static prepareResponseInvoke(invokeMessage: MessageData, err: undefined | Error, returnData?: any) {
         const result = new MessageData();
 
         result.callback = invokeMessage.callback;

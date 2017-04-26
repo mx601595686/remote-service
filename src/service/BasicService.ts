@@ -56,9 +56,9 @@ class BasicService {
         try {
             const service = message.isPrivate ? this.exportPrivateServices : this.exportServices;
             const result = await service[message.triggerName](...message.args);
-            this.port.sendMessage(MessageData.prepareResponse(message, undefined, result));
+            this.port.sendMessage(MessageData.prepareResponseInvoke(message, undefined, result));
         } catch (e) {
-            this.port.sendMessage(MessageData.prepareResponse(message, e));
+            this.port.sendMessage(MessageData.prepareResponseInvoke(message, e));
         }
     }
 
