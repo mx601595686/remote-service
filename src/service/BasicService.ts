@@ -10,7 +10,7 @@ import RemoteInvokeError from "../tools/RemoteInvokeError";
 /*
 * 这个类只提供了导出服务、发送事件的能力
 */
-class BasicService {
+abstract class BasicService {
 
     //导出的服务
     protected readonly exportServices: any = {};
@@ -77,12 +77,7 @@ class BasicService {
     }
 
     //接收事件
-    protected _receiveEvent(message: MessageData) {
-        return {
-            event: message.triggerName,
-            data: message.args
-        }
-    }
+    protected abstract _receiveEvent(message: MessageData):void;
 }
 
 export default BasicService;

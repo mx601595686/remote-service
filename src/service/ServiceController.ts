@@ -17,6 +17,7 @@ export enum RunningState {
 }
 
 export interface Remote {
+    services: any;                  //代理远端的公开服务
     privateServices: any;           //代理远端私有服务
     event: EventEmiter;             //远端发过来的事件
     cpuUsage: Number;               //cpu累计消耗（什么单位）
@@ -40,7 +41,12 @@ export default class ServiceController extends BasicService {
     };
 
     remote: Remote = {
-        privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, '__Controller__'), {
+        services: new Proxy<any>(this.sendInvoke.bind(this, false, this.serviceName), {
+            get(target, functionName) {
+                return target.bind(undefined, functionName);
+            }
+        }),
+        privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, this.serviceName), {
             get(target, functionName) {
                 return target.bind(undefined, functionName);
             }
@@ -53,8 +59,8 @@ export default class ServiceController extends BasicService {
         startTime: undefined
     };
 
-    constructor(serviceName: string, jsCode: string, port: ConnectionPort) {
-        super(serviceName, port);
+    constructor(jsCode: string, port: ConnectionPort) {
+        super('__Controller__', port);
         this.jsCode = jsCode;
 
         //更新硬件资源使用状态
@@ -75,11 +81,11 @@ export default class ServiceController extends BasicService {
     }
 
     //在远端执行代码，这个方法只能执行一次
-    async execute() {   
-        if (this.remote.runningState === RunningState.initialized) {    
+    async execute() {
+        if (this.remote.runningState === RunningState.initialized) {
             await this.remote.privateServices.execute(this.jsCode);
             this.remote.startTime = new Date();
-        }else{
+        } else {
             throw new Error('code has been executed');
         }
     }
@@ -97,8 +103,7 @@ export default class ServiceController extends BasicService {
         await this.remote.privateServices.resume();
     }
 
-    protected _receiveEvent(message: MessageData): any {
-        const event = super._receiveEvent(message);
-        this.remote.event.emit(event.event, event.data);
+    protected _receiveEvent(message: MessageData) {
+        this.remote.event.emit(message.triggerName, ...message.args);
     }
 }

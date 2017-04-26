@@ -5,6 +5,8 @@
 import BasicService from "./BasicService";
 import ConnectionPort from "../tools/ConnectionPort";
 import { RunningState } from "./ServiceController";
+import EventEmiter from "../tools/EventEmiter";
+import MessageData from "../tools/MessageData";
 
 abstract class RemoteService extends BasicService {
 
@@ -22,6 +24,26 @@ abstract class RemoteService extends BasicService {
             this.sendEvent(true, 'runningStateChange', RunningState.running);
         }
     };
+
+    //远端服务缓存，可自定义一些方法对收到的结果做进一步处理
+    importServicesCache: any = {/*services,event*/};
+
+    //代理远端服务
+    importServices: any = new Proxy<any>(1, {
+        get: (target, remoteServiceName) => {
+            if (!(remoteServiceName in this.importServicesCache)) {
+                this.importServicesCache[remoteServiceName] = {
+                    services: new Proxy(this.sendInvoke.bind(this, false, remoteServiceName), {
+                        get(target, functionName) {
+                            return target.bind(undefined, functionName);
+                        }
+                    }),
+                    event: new EventEmiter()
+                }
+            }
+            return this.importServicesCache[remoteServiceName];
+        }
+    });
 
     constructor(serviceName: string, port: ConnectionPort) {
         super(serviceName, port);
@@ -58,6 +80,13 @@ abstract class RemoteService extends BasicService {
         const send = await this.onError(err);
         if (!send)
             this.sendEvent(true, 'processUsage', { message: err.message, stack: err.stack });
+    }
+
+    protected _receiveEvent(message: MessageData) {
+        const service = this.importServicesCache[message.sender];
+        if (service !== undefined) {
+            service.event.emit(message.triggerName, ...message.args)
+        }
     }
 }
 
