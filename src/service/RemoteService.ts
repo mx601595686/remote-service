@@ -29,7 +29,7 @@ export abstract class RemoteService extends BasicService {
     protected importServicesCache: any = {/*services,event*/};
 
     //代理远端服务
-    importServices: any = new Proxy<any>(1, {
+    importServices: any = new Proxy<any>({}, {
         get: (target, remoteServiceName) => {
             if (!(remoteServiceName in this.importServicesCache)) {
                 this.importServicesCache[remoteServiceName] = {

@@ -19,14 +19,14 @@ export interface Remote {
     startTime: Date;
 }
 export declare class ServiceController extends BasicService {
-    readonly jsCode: string;
     protected exportPrivateServices: {
         close: () => void;
         stop: () => void;
     };
+    readonly remoteServiceName: string;
     readonly remote: Remote;
-    constructor(jsCode: string, port: ConnectionPort);
-    execute(): Promise<void>;
+    constructor(remoteServiceName: string, port: ConnectionPort);
+    execute(jsCode: string): Promise<void>;
     close(): Promise<void>;
     stop(): Promise<void>;
     resume(): Promise<void>;

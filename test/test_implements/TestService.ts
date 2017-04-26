@@ -1,4 +1,4 @@
-import { RemoteService, ConnectionPort } from '../../';
+import {RemoteService, ConnectionPort} from '../../';
 import * as vm from 'vm';
 import * as EventEmiter from 'events';
 
@@ -37,6 +37,8 @@ export default class TestService extends RemoteService {
                     this.stderr.emit('data', args);
                 }
             },
+            setTimeout,
+            setInterval,
             rs: {
                 get onError() {
                     return this_.onError;
@@ -67,8 +69,9 @@ export default class TestService extends RemoteService {
                 close: this.close.bind(this),
                 stop: this.stop.bind(this),
                 resume: this.resume.bind(this),
+                emit: this.sendEvent.bind(this, false)
             }
-        }
+        };
 
         vm.runInNewContext(jsCode, context, {
             filename: "test.js"

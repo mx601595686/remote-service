@@ -1,3 +1,6 @@
 export default class RemoteInvokeError extends Error {
-    constructor(err: any);
+    constructor(err: {
+        message: string;
+        stack: string;
+    });
 }

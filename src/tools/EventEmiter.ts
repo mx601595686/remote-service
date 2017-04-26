@@ -29,7 +29,7 @@ export default class EventEmiter {
         }
         var stack = this.listeners[type];
         for (var i = 0, l = stack.length; i < l; i++) {
-            stack[i].call(undefined, type, ...args);
+            stack[i].call(undefined, ...args);
         }
         return true;
     };

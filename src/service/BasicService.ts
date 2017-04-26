@@ -17,7 +17,7 @@ abstract class BasicService {
     //导出的内部服务
     protected readonly exportPrivateServices: any = {};
     //该服务的名称
-    protected readonly serviceName: string;
+    readonly serviceName: string;
     //连接的端口
     private readonly port: ConnectionPort;
     //回调方法列表
@@ -67,7 +67,8 @@ abstract class BasicService {
         const callback = this.callbackList[message.callback];
         this.callbackList[message.callback] = undefined;
         if (callback !== undefined) {
-            callback(new RemoteInvokeError(message.error), message.args);
+            const err = message.error && new RemoteInvokeError(message.error);
+            callback(err, message.args);
         }
     }
 

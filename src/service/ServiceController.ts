@@ -1,7 +1,7 @@
 /*
-*   远端服务控制器
-*   控制器也是一个服务，只不过这个服务只能向它所对应的远端提供服务，同时也只能调用它所对应的远端提供的服务
-*/
+ *   远端服务控制器
+ *   控制器也是一个服务，只不过这个服务只能向它所对应的远端提供服务，同时也只能调用它所对应的远端提供的服务
+ */
 
 import BasicService from "./BasicService";
 import EventEmiter from "../tools/EventEmiter";
@@ -29,8 +29,6 @@ export interface Remote {
 
 export class ServiceController extends BasicService {
 
-    readonly jsCode: string;
-
     protected exportPrivateServices = {
         close: () => {
             this.close();
@@ -40,28 +38,32 @@ export class ServiceController extends BasicService {
         }
     };
 
-    readonly remote: Remote = {
-        services: new Proxy<any>(this.sendInvoke.bind(this, false, this.serviceName), {
-            get(target, functionName) {
-                return target.bind(undefined, functionName);
-            }
-        }),
-        privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, this.serviceName), {
-            get(target, functionName) {
-                return target.bind(undefined, functionName);
-            }
-        }),
-        event: new EventEmiter(),
-        cpuUsage: undefined,
-        memoryUsage: undefined,
-        errors: [],
-        runningState: RunningState.initialized,
-        startTime: undefined
-    };
+    readonly remoteServiceName: string;
+    readonly remote: Remote;
 
-    constructor(jsCode: string, port: ConnectionPort) {
+    constructor(remoteServiceName: string, port: ConnectionPort) {
         super('__Controller__', port);
-        this.jsCode = jsCode;
+        this.remoteServiceName = remoteServiceName;
+
+        //代理远端
+        this.remote = {
+            services: new Proxy<any>(this.sendInvoke.bind(this, false, this.remoteServiceName), {
+                get(target, functionName) {
+                    return target.bind(undefined, functionName);
+                }
+            }),
+            privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, this.remoteServiceName), {
+                get(target, functionName) {
+                    return target.bind(undefined, functionName);
+                }
+            }),
+            event: new EventEmiter(),
+            cpuUsage: undefined,
+            memoryUsage: undefined,
+            errors: [],
+            runningState: RunningState.initialized,
+            startTime: undefined
+        };
 
         //更新硬件资源使用状态
         this.remote.event.on('processUsage', (cpu: number, memory: number) => {
@@ -81,9 +83,9 @@ export class ServiceController extends BasicService {
     }
 
     //在远端执行代码，这个方法只能执行一次
-    async execute() {
+    async execute(jsCode: string) {
         if (this.remote.runningState === RunningState.initialized) {
-            await this.remote.privateServices.execute(this.jsCode);
+            await this.remote.privateServices.execute(jsCode);
             this.remote.startTime = new Date();
         } else {
             throw new Error('code has been executed');
