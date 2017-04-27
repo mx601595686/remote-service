@@ -20,11 +20,10 @@ export default class MessageData {
     error?: { message: string, stack: string }; //调用远程方法出错
     isPrivate?: boolean;                        //是不是私有的方法或时间
 
-    static prepareSendInvoke(isPrivate: boolean, sender: string, receiver: string, triggerName: string, args: Array<any>) {
+    static prepareSendInvoke(isPrivate: boolean,receiver: string, triggerName: string, args: Array<any>) {
         const result = new MessageData();
 
         result.isPrivate = isPrivate;
-        result.sender = sender;
         result.receiver = receiver;
         result.triggerName = triggerName;
         result.args = args;
@@ -55,11 +54,10 @@ export default class MessageData {
         return result;
     }
 
-    static prepareSendEvent(isPrivate: boolean, sender: string, triggerName: string, args: Array<any>) {
+    static prepareSendEvent(isPrivate: boolean,  triggerName: string, args: Array<any>) {
         const result = new MessageData();
 
         result.isPrivate = isPrivate;
-        result.sender = sender;
         result.triggerName = triggerName;
         result.args = args;
 

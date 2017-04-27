@@ -45,8 +45,8 @@ export abstract class RemoteService extends BasicService {
         }
     });
 
-    constructor(serviceName: string, port: ConnectionPort) {
-        super(serviceName, port);
+    constructor(port: ConnectionPort) {
+        super(port);
     }
 
     //关闭服务运行

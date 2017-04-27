@@ -14,7 +14,7 @@ export declare abstract class RemoteService extends BasicService {
     };
     protected importServicesCache: any;
     importServices: any;
-    constructor(serviceName: string, port: ConnectionPort);
+    constructor(port: ConnectionPort);
     close(): Promise<void>;
     stop(): Promise<void>;
     resume(): Promise<void>;

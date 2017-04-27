@@ -18,7 +18,7 @@ export default class MessageData {
         stack: string;
     };
     isPrivate?: boolean;
-    static prepareSendInvoke(isPrivate: boolean, sender: string, receiver: string, triggerName: string, args: Array<any>): MessageData;
+    static prepareSendInvoke(isPrivate: boolean, receiver: string, triggerName: string, args: Array<any>): MessageData;
     static prepareResponseInvoke(invokeMessage: MessageData, err: undefined | Error, returnData?: any): MessageData;
-    static prepareSendEvent(isPrivate: boolean, sender: string, triggerName: string, args: Array<any>): MessageData;
+    static prepareSendEvent(isPrivate: boolean, triggerName: string, args: Array<any>): MessageData;
 }

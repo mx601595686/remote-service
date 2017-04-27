@@ -3,11 +3,46 @@
 * 通信端口提供者必须自行处理端口端口连接后应当采取的措施
 */
 
-import MessageData from './MessageData';
+import MessageData, { MessageType } from './MessageData';
+import { ServiceController } from '../service/ServiceController';
 
 abstract class ConnectionPort {
-    abstract sendMessage(message: MessageData): void;  //发送消息
-    onMessage: (message: MessageData) => void;         //接受消息
+
+    /**
+     * 
+     * @param {string} serviceName 使用该接口的服务名称
+     * @param {string[]} importServices 该服务引用的外部服务名
+     * 
+     * @memberOf ConnectionPort
+     */
+    constructor(
+        public serviceName: string,
+        public importServices: string[]) {
+        importServices.push(ServiceController.controllerName);
+    }
+
+    _onMessage: (message: MessageData) => void;         //接受消息
+
+    //内部发送消息，在发送消息前会对发送的消息进行验证
+    _sendMessage(message: MessageData) {
+        message.sender = this.serviceName;
+        if (!this.importServices.includes(message.receiver)) {
+            if (message.type === MessageType.invoke) {
+                this._onMessage(MessageData.prepareResponseInvoke(message,
+                    new Error(`The calling service '${message.receiver}' is not in the service list`)));
+            }
+        } else {
+            this.onSendMessage(message);
+        }
+    };
+
+    receiveMessage(message: MessageData) {
+        if (message.receiver === this.serviceName) {
+            this._onMessage(message);
+        }
+    }
+
+    abstract onSendMessage(message: MessageData): void;
 }
 
 export default ConnectionPort;

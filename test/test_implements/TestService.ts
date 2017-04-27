@@ -9,8 +9,8 @@ export default class TestService extends RemoteService {
 
     private interval: any[] = [];
 
-    constructor(serviceName: string, port: ConnectionPort) {
-        super(serviceName, port);
+    constructor(port: ConnectionPort) {
+        super(port);
 
         this.interval.push(setInterval(() => {
             let cpu = process.cpuUsage();

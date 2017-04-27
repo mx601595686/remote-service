@@ -11,8 +11,8 @@ describe('test remote-service', function () {
 
     beforeEach(function () {
         connection = new EmulateConnection();
-        controller = new ServiceController('test1', connection.port1);
-        remote = new TestService('test1', connection.port2);
+        controller = new ServiceController(connection.port1);
+        remote = new TestService(connection.port2);
 
         connection.printMessage(true);
     });

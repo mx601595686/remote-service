@@ -1,17 +1,14 @@
-import {ConnectionPort, MessageData} from '../../';
+import { ConnectionPort, MessageData } from '../../';
 
 export class EmulatePort extends ConnectionPort {
 
     public isPrintMessage = false;
+    public port: EmulatePort;
 
-    constructor(public name: string, public port: EmulatePort) {
-        super();
-    }
-
-    sendMessage(message: MessageData): void {
+    onSendMessage(message: MessageData): void {
         if (this.isPrintMessage)
-            console.log(this.name, message);
-        this.port.onMessage(message);
+            console.log(this.serviceName, message);
+        this.port.receiveMessage(message);
     }
 }
 
@@ -22,8 +19,8 @@ export default class EmulateConnection {
 
 
     constructor() {
-        this.port1 = new EmulatePort('port1', undefined);
-        this.port2 = new EmulatePort('port2', this.port1);
+        this.port1 = new EmulatePort('port1', []);
+        this.port2 = new EmulatePort('port2', []);
         this.port1.port = this.port2;
     }
 

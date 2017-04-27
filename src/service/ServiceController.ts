@@ -29,6 +29,8 @@ export interface Remote {
 
 export class ServiceController extends BasicService {
 
+    static controllerName = '__Controller__';   //控制器的名称
+
     protected exportPrivateServices = {
         close: () => {
             this.close();
@@ -41,9 +43,12 @@ export class ServiceController extends BasicService {
     readonly remoteServiceName: string;
     readonly remote: Remote;
 
-    constructor(remoteServiceName: string, port: ConnectionPort) {
-        super('__Controller__', port);
-        this.remoteServiceName = remoteServiceName;
+    constructor(port: ConnectionPort) {
+        super(port);
+        
+        this.remoteServiceName = port.serviceName;
+        port.serviceName = ServiceController.controllerName;
+        port.importServices.length = 0;
 
         //代理远端
         this.remote = {
