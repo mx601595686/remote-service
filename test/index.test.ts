@@ -10,7 +10,7 @@ describe('test remote-service', function () {
     let connection: EmulateConnection;
 
     beforeEach(function () {
-        connection = new EmulateConnection();
+        connection = new EmulateConnection('test', []);
         controller = new ServiceController(connection.port1);
         remote = new TestService(connection.port2);
 
@@ -64,15 +64,14 @@ describe('test remote-service', function () {
         it('test receive remote event message', function (done) {
             controller.execute(`
              setTimeout(function () {
+             debugger
                 rs.emit('test',123)
             },500)`);
 
-            setTimeout(function () {
-                controller.remote.event.on('test', function (data: any) {
-                    expect(data).to.be(123);
-                    done();
-                });
-            }, 1000);
+            controller.remote.event.on('test', function (data: any) {
+                expect(data).to.be(123);
+                done();
+            });
         });
     });
 

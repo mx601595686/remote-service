@@ -1,4 +1,4 @@
-import { ConnectionPort, MessageData } from '../../';
+import {ConnectionPort, MessageData} from '../../';
 
 export class EmulatePort extends ConnectionPort {
 
@@ -18,10 +18,11 @@ export default class EmulateConnection {
     port2: EmulatePort;
 
 
-    constructor() {
-        this.port1 = new EmulatePort('port1', []);
-        this.port2 = new EmulatePort('port2', []);
+    constructor(serviceName: string, importServices: string[]) {
+        this.port1 = new EmulatePort(serviceName, importServices);
+        this.port2 = new EmulatePort(serviceName, importServices);
         this.port1.port = this.port2;
+        this.port2.port = this.port1;
     }
 
     printMessage(bool: boolean) {

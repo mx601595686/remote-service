@@ -49,6 +49,7 @@ export class ServiceController extends BasicService {
         this.remoteServiceName = port.serviceName;
         port.serviceName = ServiceController.controllerName;
         port.importServices.length = 0;
+        port.importServices.push(this.remoteServiceName);   //服务控制端只允许调用所控制远端的服务
 
         //代理远端
         this.remote = {
