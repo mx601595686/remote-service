@@ -8,8 +8,10 @@ import {ServiceController} from '../service/ServiceController';
 
 abstract class ConnectionPort {
 
-    serviceName: string; //使用该接口的服务名称
-    importServices: string[];   //该服务引用的外部服务名
+    private serviceName: string; //使用该接口的服务名称
+    private importServices: string[];   //该服务引用的外部服务名
+    _isController = false;  //使用该段口的是否是控制器
+
     _onMessage: (message: MessageData) => void;         //内部用于接受消息的回调方法
 
     constructor(serviceName: string, importServices: string[]) {
@@ -19,20 +21,37 @@ abstract class ConnectionPort {
 
     //内部发送消息，在发送消息前会对发送的消息进行验证
     _sendMessage(message: MessageData) {
-        message.sender = this.serviceName;
+        message.sender = this._isController ? ServiceController.controllerName : this.serviceName;
 
         switch (message.type) {
             case MessageType.invoke: {
-                if (!this.importServices.includes(message.receiver)) {  //如果请求了不在服务列表中的服务
-                    this._onMessage(MessageData.prepareResponseInvoke(message,
-                        new Error(`The calling service '${message.receiver}' is not in the service list`)));
+                if (this._isController) { //如果是控制器
+                    if (!message.isPrivate) {
+                        this._onMessage(MessageData.prepareResponseInvoke(message,
+                            new Error(`Service controller only can invoke private remote services`)));
+                    } else {
+                        message.receiver = this.serviceName;
+                        this.onSendMessage(message);
+                    }
                 } else {
-                    this.onSendMessage(message);
+                    if (!this.importServices.includes(message.receiver)) {  //如果请求了不在服务列表中的服务
+                        this._onMessage(MessageData.prepareResponseInvoke(message,
+                            new Error(`The calling service '${message.receiver}' is not in the service list`)));
+                    } else {
+                        this.onSendMessage(message);
+                    }
                 }
                 break;
             }
-            case MessageType.response: {
-                if (this.importServices.includes(message.receiver)) {   //确保只回复在服务列表中的请求
+            case MessageType.event: {
+                if (this._isController) { //如果是控制器
+                    if (!message.isPrivate) {
+                        this._onMessage(MessageData.prepareResponseInvoke(message,
+                            new Error(`Service controller only can send private event`)));
+                    } else {
+                        this.onSendMessage(message);
+                    }
+                } else {
                     this.onSendMessage(message);
                 }
                 break;
@@ -45,18 +64,15 @@ abstract class ConnectionPort {
     };
 
     receiveMessage(message: MessageData) {
-        switch (message.type) {
-            case MessageType.invoke:
-            case MessageType.response: {
-                if (message.receiver === this.serviceName) {
-                    this._onMessage(message);
-                }
-                break;
-            }
-            default: {
+        if (this._isController) {
+            if (!message.isPrivate)
+                throw new Error('Service controller has received a unprivate message. Please check your message router');
+
+            if (message.receiver === ServiceController.controllerName)
                 this._onMessage(message);
-                break;
-            }
+        } else {
+            if (message.receiver === this.serviceName)
+                this._onMessage(message);
         }
     }
 

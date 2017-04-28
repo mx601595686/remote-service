@@ -79,7 +79,7 @@ export abstract class RemoteService extends BasicService {
     protected async _sendUncaughtError(err: Error) {
         const send = await this.onError(err);
         if (!send)
-            this.sendEvent(true, 'processUsage', { message: err.message, stack: err.stack });
+            this.sendEvent(true, 'error', { message: err.message, stack: err.stack });
     }
 
     protected _receiveEvent(message: MessageData) {

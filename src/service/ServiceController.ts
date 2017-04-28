@@ -17,9 +17,8 @@ export enum RunningState {
 }
 
 export interface Remote {
-    services: any;                  //代理远端的公开服务
     privateServices: any;           //代理远端私有服务
-    event: EventEmiter;             //远端发过来的事件
+    privateEvent: EventEmiter;      //远端发过来的私有事件
     cpuUsage: Number;               //cpu累计消耗（什么单位）
     memoryUsage: Number;            //内存消耗（byte）
     errors: Array<Error>;           //远端发生的未捕获错误
@@ -40,50 +39,37 @@ export class ServiceController extends BasicService {
         }
     };
 
-    readonly remoteServiceName: string;
-    readonly remote: Remote;
+    readonly remote: Remote = {      //代理远端
+        privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, undefined), {
+            get(target, functionName) {
+                return target.bind(undefined, functionName);
+            }
+        }),
+        privateEvent: new EventEmiter(),
+        cpuUsage: undefined,
+        memoryUsage: undefined,
+        errors: [],
+        runningState: RunningState.initialized,
+        startTime: undefined
+    };
 
     constructor(port: ConnectionPort) {
         super(port);
-        
-        this.remoteServiceName = port.serviceName;
-        port.serviceName = ServiceController.controllerName;
-        port.importServices.length = 0;
-        port.importServices.push(this.remoteServiceName);   //服务控制端只允许调用所控制远端的服务
-
-        //代理远端
-        this.remote = {
-            services: new Proxy<any>(this.sendInvoke.bind(this, false, this.remoteServiceName), {
-                get(target, functionName) {
-                    return target.bind(undefined, functionName);
-                }
-            }),
-            privateServices: new Proxy<any>(this.sendInvoke.bind(this, true, this.remoteServiceName), {
-                get(target, functionName) {
-                    return target.bind(undefined, functionName);
-                }
-            }),
-            event: new EventEmiter(),
-            cpuUsage: undefined,
-            memoryUsage: undefined,
-            errors: [],
-            runningState: RunningState.initialized,
-            startTime: undefined
-        };
+        port._isController = true;
 
         //更新硬件资源使用状态
-        this.remote.event.on('processUsage', (cpu: number, memory: number) => {
+        this.remote.privateEvent.on('processUsage', (cpu: number, memory: number) => {
             this.remote.cpuUsage = cpu;
             this.remote.memoryUsage = memory;
         });
 
         //运行状态发生改变
-        this.remote.event.on('runningStateChange', (state: RunningState) => {
+        this.remote.privateEvent.on('runningStateChange', (state: RunningState) => {
             this.remote.runningState = state;
         });
 
         //远端运行时出现未捕获的异常
-        this.remote.event.on('error', (err: any) => {
+        this.remote.privateEvent.on('error', (err: any) => {
             this.remote.errors.push(new RemoteError(err));
         });
     }
@@ -112,6 +98,6 @@ export class ServiceController extends BasicService {
     }
 
     protected _receiveEvent(message: MessageData) {
-        this.remote.event.emit(message.triggerName, ...message.args);
+        this.remote.privateEvent.emit(message.triggerName, ...message.args);
     }
 }
