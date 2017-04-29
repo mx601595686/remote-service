@@ -31,6 +31,7 @@ export default class ServiceController {
 
     //远端发来的其他事件
     protected onEvent: (eventName: string, args: any[]) => void;
+    private closed = false;     //是否已经调用了closeService
 
     constructor(
         readonly serviceName: string,
@@ -87,7 +88,10 @@ export default class ServiceController {
      * @memberOf ServiceController
      */
     closeService() {
-        this.port.sendMessage(InternalEventName.close);
+        if (!this.closed) {
+            this.closed = true;
+            this.port.sendMessage(InternalEventName.close);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 {
-  "name": "remote-service",
+  "name": "services-cluster",
   "version": "0.0.1",
   "description": "A abstract implemention of creating JavaScript cluster application",
   "main": "./bin/index.js",
