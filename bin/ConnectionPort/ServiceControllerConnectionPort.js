@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ServiceControllerConnectionPort {
+    constructor(serviceName, //服务名称
+        port //连接端口
+    ) {
+        this.serviceName = serviceName;
+        this.port = port; //连接端口
+        port;
+    }
+}
+exports.default = ServiceControllerConnectionPort;
+
+//# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkNvbm5lY3Rpb25Qb3J0L1NlcnZpY2VDb250cm9sbGVyQ29ubmVjdGlvblBvcnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFJQTtJQUNJLFlBQ2EsV0FBbUIsRUFBSSxNQUFNO1FBQ3JCLElBQW9CLENBQUcsTUFBTTs7UUFEckMsZ0JBQVcsR0FBWCxXQUFXLENBQVE7UUFDWCxTQUFJLEdBQUosSUFBSSxDQUFnQixDQUFHLE1BQU07UUFFOUMsSUFBSSxDQUFBO0lBQ1IsQ0FBQztDQUdKO0FBVEQsa0RBU0MiLCJmaWxlIjoiQ29ubmVjdGlvblBvcnQvU2VydmljZUNvbnRyb2xsZXJDb25uZWN0aW9uUG9ydC5qcyIsInNvdXJjZXNDb250ZW50IjpbIi8v5pyN5Yqh5o6n5Yi25Zmo5L2/55So55qE6L+e5o6l56uv5Y+j44CC5o+Q5L6b5LqG5a+5Q29ubmVjdGlvblBvcnTnmoTlsIHoo4XvvIzmlrnkvr/kvb/nlKhcclxuaW1wb3J0IENvbm5lY3Rpb25Qb3J0IGZyb20gJy4vQ29ubmVjdGlvblBvcnQnO1xyXG5pbXBvcnQgKiBhcyBFdmVudEVtaXRlciBmcm9tICdldmVudHMnO1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgY2xhc3MgU2VydmljZUNvbnRyb2xsZXJDb25uZWN0aW9uUG9ydCB7XHJcbiAgICBjb25zdHJ1Y3RvcihcclxuICAgICAgICByZWFkb25seSBzZXJ2aWNlTmFtZTogc3RyaW5nLCAgIC8v5pyN5Yqh5ZCN56ewXHJcbiAgICAgICAgcHJpdmF0ZSByZWFkb25seSBwb3J0OiBDb25uZWN0aW9uUG9ydCAgIC8v6L+e5o6l56uv5Y+jXHJcbiAgICApIHtcclxuICAgICAgICBwb3J0XHJcbiAgICB9XHJcblxyXG5cclxufSJdfQ==

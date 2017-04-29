@@ -1,0 +1,9 @@
+//服务控制器
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ServiceController {
+}
+ServiceController.controllerName = '__controller__'; //控制器的默认名称
+exports.default = ServiceController;
+
+//# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIlNlcnZpY2VDb250cm9sbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU87OztBQUVQOztBQUNXLGdDQUFjLEdBQUcsZ0JBQWdCLENBQUMsQ0FBSyxVQUFVO0FBRDVELG9DQUdDIiwiZmlsZSI6IlNlcnZpY2VDb250cm9sbGVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy/mnI3liqHmjqfliLblmahcclxuXHJcbmV4cG9ydCBkZWZhdWx0IGNsYXNzIFNlcnZpY2VDb250cm9sbGVyIHtcclxuICAgIHN0YXRpYyBjb250cm9sbGVyTmFtZSA9ICdfX2NvbnRyb2xsZXJfXyc7ICAgICAvL+aOp+WItuWZqOeahOm7mOiupOWQjeensFxyXG4gICAgXHJcbn0iXX0=
