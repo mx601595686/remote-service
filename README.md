@@ -28,6 +28,7 @@
 
 ### 服务容器(ServiceContainer)
 一个服务运行的环境。一个服务容器是有两部分构成的，`服务控制器(ServiceController)`与`远程服务(RemoteService)`。
+`远程服务(RemoteService)`在远端运行。
 
 #### 功能
 * 创建服务执行环境（例如创建一个新的进程会docker容器等等）

@@ -138,7 +138,7 @@ abstract class RemoteService {
      * @memberof RemoteService
      */
     protected sendStdout(out: string) {
-        this.port.sendInternalMessage(InternalEventName.remoteStdout, out);
+        this.port.sendInternalMessage(InternalEventName.remoteStdout, Date.now(), out);
     }
 
     /**
@@ -150,7 +150,7 @@ abstract class RemoteService {
      * @memberof RemoteService
      */
     protected sendStderr(out: string) {
-        this.port.sendInternalMessage(InternalEventName.remoteStderr, out);
+        this.port.sendInternalMessage(InternalEventName.remoteStderr, Date.now(), out);
     }
 
     /**

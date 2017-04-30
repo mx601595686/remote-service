@@ -21,10 +21,10 @@ export default class ServiceController {
     onRemoteServiceError: (err: Error) => void;
 
     //远端服务的标准输出
-    onRemoteStdout: (out: string) => void;
+    onRemoteStdout: (timestamp: number, out: string) => void;
 
     //远端服务的标准错误输出
-    onRemoteStderr: (out: string) => void;
+    onRemoteStderr: (timestamp: number, out: string) => void;
 
     //更新远端资源消耗情况
     onUpdateResourceUsage: (usage: ResourceUsageInformation) => void;
@@ -54,11 +54,11 @@ export default class ServiceController {
                     break;
                 }
                 case InternalEventName.remoteStderr: {
-                    this.onRemoteStderr && this.onRemoteStderr(args[0]);
+                    this.onRemoteStderr && this.onRemoteStderr(args[0], args[1]);
                     break;
                 }
                 case InternalEventName.remoteStdout: {
-                    this.onRemoteStdout && this.onRemoteStdout(args[0]);
+                    this.onRemoteStdout && this.onRemoteStdout(args[0], args[1]);
                     break;
                 }
                 case InternalEventName.runningStateChange: {
