@@ -20,7 +20,7 @@ export default class InternalMessage extends Message {
     constructor(isController: boolean, serviceName: string, eventName: string | number, args: any[]) {
         const sender = isController ? ServiceController.controllerName : serviceName;
         const receiver = isController ? serviceName : ServiceController.controllerName;
-        super([receiver], sender, MessageType.internal, {
+        super(receiver, sender, MessageType.internal, {
             eventName,
             args
         });

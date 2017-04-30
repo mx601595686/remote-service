@@ -16,7 +16,7 @@ export default class InvokeMessage extends Message {
      * @memberOf InvokeMessage
      */
     constructor(sender: string, receiver: string, functionName: string, args: any[]) {
-        super([receiver], sender, MessageType.invoke, {
+        super(receiver, sender, MessageType.invoke, {
             callback: Math.random().toString(),
             functionName,
             args

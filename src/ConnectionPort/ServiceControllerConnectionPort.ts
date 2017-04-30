@@ -21,7 +21,7 @@ export default class ServiceControllerConnectionPort {
             //验证消息
             if (message.type === MessageType.internal)
                 if (message.sender === this.serviceName)
-                    if (message.receiver[0] === ServiceController.controllerName) {
+                    if (message.receiver === ServiceController.controllerName) {
                         if (this.onMessage !== undefined)
                             this.onMessage(message.data.eventName, message.data.args);
                         return;

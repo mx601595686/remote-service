@@ -18,7 +18,7 @@ export default class ResponseMessage extends Message {
      * @memberOf ResponseMessage
      */
     constructor(invokeMessage: InvokeMessage, sender: string, err: Error, returnData?: any) {
-        super([invokeMessage.sender], sender, MessageType.response, {
+        super(invokeMessage.sender, sender, MessageType.response, {
             callback: invokeMessage.data.callback,
             error: { message: err.message, stack: err.stack },
             returnData

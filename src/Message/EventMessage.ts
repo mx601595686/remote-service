@@ -15,7 +15,7 @@ export default class EventMessage extends Message {
      * @memberOf EventMessage
      */
     constructor(sender: string, eventName: string | number, args: any[]) {
-        super([], sender, MessageType.event, {
+        super(undefined, sender, MessageType.event, {
             eventName,
             args
         });

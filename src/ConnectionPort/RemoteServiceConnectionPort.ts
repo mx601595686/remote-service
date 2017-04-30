@@ -39,7 +39,7 @@ export default class RemoteServiceConnectionPort {
         port.onMessage = (message: Message) => {
             //验证消息
 
-            badMessage: if (message.receiver.includes(this.serviceName)) {
+            badMessage: if (message.receiver === this.serviceName) {
                 switch (message.type) {
                     case MessageType.internal: {    //如果是内部事件消息
                         if (message.sender === ServiceController.controllerName) {

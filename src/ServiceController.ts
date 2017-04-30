@@ -56,7 +56,7 @@ export default class ServiceController {
                 }
                 case InternalEventName.remoteServiceError: {
                     this.onRemoteServiceError &&
-                        this.onRemoteServiceError(new RemoteError(args[0], args[1]))
+                        this.onRemoteServiceError(new RemoteError(args[0]))
                     break;
                 }
                 case InternalEventName.remoteStderr: {
