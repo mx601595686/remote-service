@@ -10,13 +10,13 @@ export default class ServiceControllerConnectionPort {
     onMessage: (eventName: string | number, args: any[]) => void;
 
     //内部注册的网络异常回调函数。
-    onError: (err: Error) => void;
+    onConnectionError: (err: Error) => void;
 
     constructor(
         readonly serviceName: string,   //服务名称
         private readonly port: ConnectionPort   //连接端口
     ) {
-        port.onError = (err: Error) => this.onError && this.onError(err);
+        port.onError = (err: Error) => this.onConnectionError && this.onConnectionError(err);
         port.onMessage = (message: InternalMessage) => {
             //验证消息
             if (message.type === MessageType.internal)

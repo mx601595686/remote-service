@@ -21,9 +21,9 @@
     "url": "git+https://github.com/mx601595686/remote-service.git"
   },
   "keywords": [
-    "remote",
     "service",
-    "cluster"
+    "cluster",
+    "remote"
   ],
   "author": "wujingtao",
   "license": "MIT",

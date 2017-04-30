@@ -7,7 +7,7 @@ import InternalEventName from "./Tools/InternalEventName";
 import RemoteError from "./Tools/RemoteError";
 
 export default class ServiceController {
-    static controllerName = '__controller__';     //控制器的默认名称
+    static readonly controllerName = '__controller__';     //控制器的默认名称
 
     private readonly port: ServiceControllerConnectionPort;
 
@@ -31,7 +31,6 @@ export default class ServiceController {
 
     //远端发来的其他事件
     protected onEvent: (eventName: string, args: any[]) => void;
-    private closed = false;     //是否已经调用了closeService
 
     constructor(
         readonly serviceName: string,
@@ -43,8 +42,8 @@ export default class ServiceController {
         this.port = new ServiceControllerConnectionPort(serviceName, port);
 
         //网络连接出现异常
-        this.port.onError = (err) => this.onConnectionError && this.onConnectionError(err);
-
+        this.port.onConnectionError = (err) => this.onConnectionError && this.onConnectionError(err);
+        //接受远端发来的消息
         this.port.onMessage = (eventName, args) => {
             switch (eventName) {
                 case InternalEventName.remoteReady: {   //当远端准备好了就发送要执行的服务代码
@@ -88,10 +87,7 @@ export default class ServiceController {
      * @memberOf ServiceController
      */
     closeService() {
-        if (!this.closed) {
-            this.closed = true;
-            this.port.sendMessage(InternalEventName.close);
-        }
+        this.port.sendMessage(InternalEventName.close);
     }
 
     /**

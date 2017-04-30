@@ -13,7 +13,7 @@ import RemoteInvokeError from "../Tools/RemoteInvokeError";
 
 export default class RemoteServiceConnectionPort {
 
-    //回调列表
+    //回调列表(第一个是timeout，第二个是回调方法)
     private callbackList = new Map<string, (error: Error, returnData?: any) => void>();
 
     invokeTimeout = 1000 * 60;  //调用远程方法超时，默认一分钟
@@ -28,18 +28,18 @@ export default class RemoteServiceConnectionPort {
     onInvokeMessage: (functionName: string, args: any[]) => Promise<any>;
 
     //内部注册的网络异常回调函数。
-    onError: (err: Error) => void;
+    onConnectionError: (err: Error) => void;
 
     constructor(
         readonly serviceName: string,   //服务名称
         readonly importServices: string[],  //依赖的服务名称列表
         private readonly port: ConnectionPort   //连接端口
     ) {
-        port.onError = (err: Error) => this.onError && this.onError(err);
+        port.onError = (err: Error) => this.onConnectionError && this.onConnectionError(err);
         port.onMessage = (message: Message) => {
             //验证消息
 
-            badMessage: if (message.receiver === this.serviceName) {
+            if (message.receiver === this.serviceName) {
                 switch (message.type) {
                     case MessageType.internal: {    //如果是内部事件消息
                         if (message.sender === ServiceController.controllerName) {
@@ -49,7 +49,7 @@ export default class RemoteServiceConnectionPort {
                                     (<InternalMessage>message).data.args);
                             return;
                         }
-                        break badMessage;
+                        break;
                     }
                     case MessageType.event: {
                         if (this.importServices.includes(message.sender)) { //确保只收到该服务依赖的服务发来的事件
@@ -59,7 +59,7 @@ export default class RemoteServiceConnectionPort {
                                     (<EventMessage>message).data.args);
                             return;
                         }
-                        break badMessage;
+                        break;
                     }
                     case MessageType.invoke: {
                         //调用不用验证发送者
@@ -80,14 +80,13 @@ export default class RemoteServiceConnectionPort {
                     case MessageType.response: {
                         if (this.importServices.includes(message.sender)) { //确保只收到该服务依赖的服务发来的回复
                             const callback = this.callbackList.get((<ResponseMessage>message).data.callback);
-                            this.callbackList.delete((<ResponseMessage>message).data.callback);
                             if (callback !== undefined) {
                                 const { error, returnData } = (<ResponseMessage>message).data;
                                 error ? callback(new RemoteInvokeError(error)) : callback(undefined, returnData);
                             }
                             return;
                         }
-                        break badMessage;
+                        break;
                     }
                 }
             }
@@ -130,28 +129,32 @@ export default class RemoteServiceConnectionPort {
      * 
      * @memberOf RemoteServiceConnectionPort
      */
-    sendInvokeMessage(receiver: string, functionName: string, ...args: any[]): Promise<any> {
+    sendInvoke(receiver: string, functionName: string, ...args: any[]): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.importServices.includes(receiver)) {   //判断调用的服务在不在依赖服务列表中
                 //创建消息
                 const message = new InvokeMessage(this.serviceName, receiver, functionName, args);
 
-                //创建回调
-                this.callbackList.set(message.data.callback, function (error: Error, returnData?: any) {
+                //回调标识
+                const callbackID = message.data.callback;
+
+                //创建回调函数
+                const callback = (error: Error, returnData?: any) => {
+                    clearTimeout(timeout);  //关闭超时处理
+                    this.callbackList.delete(callbackID);   //在回调列表中清楚
                     error ? reject(error) : resolve(returnData);
-                });
+                }
+
+                //超时处理
+                const timeout = setTimeout(() => {
+                    callback(new Error(`invoke '${receiver}.${functionName}' timeout`));
+                }, this.invokeTimeout);
+
+                //添加到回调列表
+                this.callbackList.set(callbackID, callback);
 
                 //发送消息
                 this.port.sendMessage(message);
-
-                //超时处理
-                setTimeout(() => {
-                    const callback = this.callbackList.get(message.data.callback);
-                    this.callbackList.delete(message.data.callback);
-                    if (callback !== undefined) {
-                        callback(new Error(`invoke '${message.receiver[0]}.${message.data.functionName}' timeout`));
-                    }
-                }, this.invokeTimeout);
             } else {
                 reject(new Error(`invoking service '${receiver}' is not in importing services list`));
             }
