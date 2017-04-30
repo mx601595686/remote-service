@@ -20,12 +20,6 @@ abstract class RemoteService {
     //执行服务代码回调
     protected abstract onExecuteCode(serviceCode: string): Promise<void>;
 
-    //当服务出现未捕获异常，返回true表示错误已处理，不把错误发送给服务控制器
-    protected abstract onError(err: Error): Promise<boolean>;
-
-    //更新资源消耗情况
-    protected abstract onUpdateResourceUsage(): Promise<ResourceUsageInformation>;
-
     //接受控制器发来的其他事件
     protected onInternalMessage: (eventName: string, args: any[]) => void;
 
@@ -100,23 +94,40 @@ abstract class RemoteService {
         this.port.onInvokeMessage = async (functionName, args) => {
             return await this.exportServices[functionName](...args);
         }
-        
+
         //公开发送事件方法
         this.sendEvent = this.port.sendEventMessage.bind(this.port);
-
-        //定时更新资源消耗情况
-        setInterval(() => {
-            if (this.onUpdateResourceUsage !== undefined)
-                this.onUpdateResourceUsage().then((state) => {
-                    this.port.sendInternalMessage(InternalEventName.updateResourceUsage, state);
-                });
-        }, 1000);
 
         //通知远端已准备好了
         setTimeout(() => {
             this.port.sendInternalMessage(InternalEventName.remoteReady);
         }, 10);
     }
+
+    /**
+     * 通知服务控制器资源消耗情况
+     * 
+     * @protected
+     * @param {ResourceUsageInformation} state 源消耗情况
+     * 
+     * @memberof RemoteService
+     */
+    protected onUpdateResourceUsage(state: ResourceUsageInformation) {
+        this.port.sendInternalMessage(InternalEventName.updateResourceUsage, state);
+    }
+
+
+    /**
+     * 通知服务控制器出现错误,把错误发送给服务控制器
+     * 
+     * @protected
+     * @param {Error} err 错误消息
+     * 
+     * @memberof RemoteService
+     */
+    protected sendError(err: Error) {
+        this.port.sendInternalMessage(InternalEventName.remoteServiceError, { message: err.message, stack: err.stack });
+    };
 
     /**
      * 发送标准输出内容
