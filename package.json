@@ -4,6 +4,9 @@
   "description": "A abstract implemention of creating JavaScript cluster application",
   "main": "./bin/index.js",
   "types": "./bin/index.d.ts",
+  "engines": {
+    "node": ">=7.0.0"
+  },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^2.2.41",
