@@ -30,15 +30,13 @@ export default class ServiceController {
     onUpdateResourceUsage: (usage: ResourceUsageInformation) => void;
 
     //远端发来的其他事件
-    protected onEvent: (eventName: string, args: any[]) => void;
+    protected onMessage: (eventName: string, args: any[]) => void;
 
     constructor(
         readonly serviceName: string,
         serviceCode: string,
         port: ConnectionPort
     ) {
-        let hasSendedServiceCode = false;   //是否已经发送了serviceCode
-
         this.port = new ServiceControllerConnectionPort(serviceName, port);
 
         //网络连接出现异常
@@ -47,10 +45,7 @@ export default class ServiceController {
         this.port.onMessage = (eventName, args) => {
             switch (eventName) {
                 case InternalEventName.remoteReady: {   //当远端准备好了就发送要执行的服务代码
-                    if (!hasSendedServiceCode) {    //判断是否已经发送过了
-                        hasSendedServiceCode = true;
-                        this.port.sendMessage(InternalEventName.executeServiceCode, serviceCode);
-                    }
+                    this.port.sendMessage(InternalEventName.executeServiceCode, serviceCode);
                     break;
                 }
                 case InternalEventName.remoteServiceError: {
@@ -75,19 +70,11 @@ export default class ServiceController {
                     break;
                 }
                 default: {
-                    this.onEvent && this.onEvent(eventName.toString(), args);
+                    this.onMessage && this.onMessage(eventName.toString(), args);
                     break;
                 }
             }
         }
-    }
-
-    /**
-     * 通知关闭远程服务
-     * @memberOf ServiceController
-     */
-    closeService() {
-        this.port.sendMessage(InternalEventName.close);
     }
 
     /**
@@ -99,8 +86,16 @@ export default class ServiceController {
      * 
      * @memberOf ServiceController
      */
-    protected sendEvent(eventName: string, ...args: any[]) {
+    protected sendMessage(eventName: string, ...args: any[]) {
         //不允许发送数字类型的事件名是为了避免与内部事件名相冲突
         this.port.sendMessage(eventName, args);
+    }
+
+    /**
+     * 通知关闭远程服务
+     * @memberOf ServiceController
+     */
+    closeService() {
+        this.port.sendMessage(InternalEventName.close);
     }
 }

@@ -22,7 +22,7 @@ export default class RemoteServiceConnectionPort {
     onInternalMessage: (eventName: string | number, args: any[]) => void;
 
     //内部接收事件消息的回调函数。
-    onEventMessage: (eventName: string | number, args: any[]) => void;
+    onEventMessage: (sender: string, eventName: string | number, args: any[]) => void;
 
     //内部接收调用请求的回调函数。
     onInvokeMessage: (functionName: string, args: any[]) => Promise<any>;
@@ -55,6 +55,7 @@ export default class RemoteServiceConnectionPort {
                         if (this.importServices.includes(message.sender)) { //确保只收到该服务依赖的服务发来的事件
                             if (this.onEventMessage !== undefined)
                                 this.onEventMessage(
+                                    message.sender,
                                     (<EventMessage>message).data.eventName,
                                     (<EventMessage>message).data.args);
                             return;

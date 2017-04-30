@@ -2,7 +2,7 @@
 
 export default class ResourceUsageInformation {
     constructor(
-        readonly cpuUsage: Number,
-        readonly memoryUsage: Number
+        readonly cpuUsage: Number = 0,
+        readonly memoryUsage: Number = 0
     ) { }
 }
