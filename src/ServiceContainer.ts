@@ -1,10 +1,23 @@
 import ServiceController from './ServiceController';
 import RunningState from './Tools/RunningState';
 import ResourceUsageInformation from "./Tools/ResourceUsageInformation";
+import SimpleEventEmiter from './Tools/SimpleEventEmiter';
 
 //服务容器
 
-abstract class ServiceContainer {
+/*
+包含的事件
+    //服务发生错误
+    error: (err: Error) => void;
+    //远端发来的标准输出
+    stdout: (out: { type: number, timestamp: number, content: string }) => void;
+    //远端服务运行状态发生改变
+    runningStateChange: (state: RunningState) => void;
+    //更新远端资源消耗情况
+    updateResourceUsage: (usage: ResourceUsageInformation) => void;
+*/
+
+abstract class ServiceContainer extends SimpleEventEmiter {
     //服务控制器
     private controller: ServiceController;
 
@@ -19,21 +32,17 @@ abstract class ServiceContainer {
     //资源消耗情况
     resourceUsage: ResourceUsageInformation;
 
-    //服务发生错误
-    onError: (err: Error) => void;
-    //远端发来的标准输出
-    onStdout: (out: { type: number, timestamp: number, content: string }) => void;
-    //远端服务运行状态发生改变
-    onRunningStateChange: (state: RunningState) => void;
-    //更新远端资源消耗情况
-    onUpdateResourceUsage: (usage: ResourceUsageInformation) => void;
-
 
     constructor(
         readonly serviceName: string,       //服务名称
         readonly serviceCode: string,       //服务代码
         readonly importServices: string[],  //服务依赖的其他服务
-    ) { }
+        config: any //配置服务容器的参数
+    ) {
+        super();
+        if ('number' === typeof config.maxStdout)
+            this.maxStdout = config.maxStdout;
+    }
 
     /**
      * 创建服务的执行环境，记得把服务名称、服务依赖列表发过去
@@ -45,11 +54,27 @@ abstract class ServiceContainer {
      */
     protected abstract async onCreateEnvironment(): Promise<ServiceController>;
 
+    /**
+     * 销毁服务环境
+     * 
+     * @protected
+     * @abstract
+     * @returns {Promise<void>} 
+     * 
+     * @memberof ServiceContainer
+     */
+    protected abstract async onDestroyEnvironment(): Promise<void>;
+
+    /**
+     * 启动服务
+     * 
+     * @memberof ServiceContainer
+     */
     async start() {
         if (this.runningState === RunningState.closed) {
             //标记为已启动
             this.runningState = RunningState.starting;
-            this.onRunningStateChange && this.onRunningStateChange(RunningState.starting);
+            this.emit('runningStateChange', RunningState.starting);
 
             //清理上次执行
             this.errors.length = 0;
@@ -62,14 +87,14 @@ abstract class ServiceContainer {
             //网络连接异常
             this.controller.onConnectionError = (err) => {
                 this.errors.push(err);
-                this.onError && this.onError(err);
+                this.emit('error', err);
                 this.close();   //通知关闭
             };
 
             //服务执行错误
             this.controller.onRemoteServiceError = (err) => {
                 this.errors.push(err);
-                this.onError && this.onError(err);
+                this.emit('error', err);
             };
 
             //远端标准错误输出
@@ -78,35 +103,55 @@ abstract class ServiceContainer {
                 this.stdout.push(out);
                 if (this.stdout.length > this.maxStdout)
                     this.stdout.shift();
-                this.onStdout && this.onStdout(out);
+                this.emit('stdout', out);
             };
-            
+
             //远端标准输出
             this.controller.onRemoteStdout = (timestamp, content) => {
                 const out = { type: 1, timestamp, content };
                 this.stdout.push(out);
                 if (this.stdout.length > this.maxStdout)
                     this.stdout.shift();
-                this.onStdout && this.onStdout(out);
+                this.emit('stdout', out);
             };
 
             //远端运行状态发生改变
             this.controller.onRunningStateChange = (state) => {
                 this.runningState = state;
-                this.onRunningStateChange && this.onRunningStateChange(state);
+                this.emit('runningStateChange', state);
+                if (state === RunningState.closed)
+                    this.onDestroyEnvironment();
             };
 
             //更新远端资源消耗
             this.controller.onUpdateResourceUsage = (usage) => {
                 this.resourceUsage = usage;
-                this.onUpdateResourceUsage && this.onUpdateResourceUsage(usage);
+                this.emit('updateResourceUsage', usage);
             };
         }
     }
 
+    /**
+     * 关闭服务
+     * 
+     * @memberof ServiceContainer
+     */
     close() {
         if (this.runningState !== RunningState.closed) {
             this.controller.closeService();
+        }
+    }
+
+    /**
+     * 强行关闭服务
+     * 
+     * @memberof ServiceContainer
+     */
+    async forceClose() {
+        if (this.runningState !== RunningState.closed) {
+            await this.onDestroyEnvironment();
+            this.runningState = RunningState.closed;
+            this.emit('runningStateChange', RunningState.closed);
         }
     }
 }
