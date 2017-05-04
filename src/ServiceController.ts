@@ -13,19 +13,14 @@ export default class ServiceController {
 
     //当与远端服务连接出现异常
     onConnectionError: (err: Error) => void;
-
     //远端服务运行状态发生改变
     onRunningStateChange: (state: RunningState) => void;
-
     //当远端服务发生异常
     onRemoteServiceError: (err: Error) => void;
-
     //远端服务的标准输出
     onRemoteStdout: (timestamp: number, out: string) => void;
-
     //远端服务的标准错误输出
     onRemoteStderr: (timestamp: number, out: string) => void;
-
     //更新远端资源消耗情况
     onUpdateResourceUsage: (usage: ResourceUsageInformation) => void;
 
@@ -42,10 +37,10 @@ export default class ServiceController {
         //网络连接出现异常
         this.port.onConnectionError = (err) => this.onConnectionError && this.onConnectionError(err);
         //接受远端发来的消息
-        this.port.onMessage = (eventName, args) => {
+        this.port.onInternalMessage = (eventName, args) => {
             switch (eventName) {
                 case InternalEventName.remoteReady: {   //当远端准备好了就发送要执行的服务代码
-                    this.port.sendMessage(InternalEventName.executeServiceCode, serviceCode);
+                    this.port.sendInternalMessage(InternalEventName.executeServiceCode, serviceCode);
                     break;
                 }
                 case InternalEventName.remoteServiceError: {
@@ -88,7 +83,7 @@ export default class ServiceController {
      */
     protected sendMessage(eventName: string, ...args: any[]) {
         //不允许发送数字类型的事件名是为了避免与内部事件名相冲突
-        this.port.sendMessage(eventName, args);
+        this.port.sendInternalMessage(eventName, args);
     }
 
     /**
@@ -96,6 +91,6 @@ export default class ServiceController {
      * @memberOf ServiceController
      */
     closeService() {
-        this.port.sendMessage(InternalEventName.close);
+        this.port.sendInternalMessage(InternalEventName.close);
     }
 }

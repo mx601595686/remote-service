@@ -6,7 +6,11 @@ import InvokeMessage from "./InvokeMessage";
 
 
 export default class ResponseMessage extends Message {
-    data: { callback: string, error: { message: string, stack: string }, returnData: any };
+    data: {
+        callback: string,   //调用请求发来的回调ID
+        error: { message: string, stack: string },  //如果执行错误，返回给调用方的错误消息，没错则为空
+        returnData: any //返回的数据
+    };
 
     /**
      * 创建一条回复调用消息

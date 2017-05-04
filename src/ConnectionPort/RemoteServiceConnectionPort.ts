@@ -13,20 +13,17 @@ import RemoteInvokeError from "../Tools/RemoteInvokeError";
 
 export default class RemoteServiceConnectionPort {
 
-    //回调列表(第一个是timeout，第二个是回调方法)
+    //回调列表(key是回调ID，value是回调方法)
     private callbackList = new Map<string, (error: Error, returnData?: any) => void>();
-
-    invokeTimeout = 1000 * 60;  //调用远程方法超时，默认一分钟
+    //调用远程方法超时，默认一分钟
+    invokeTimeout = 1000 * 60;
 
     //内部接收控制器发来的事件消息的回调函数。
     onInternalMessage: (eventName: string | number, args: any[]) => void;
-
     //内部接收事件消息的回调函数。
     onEventMessage: (sender: string, eventName: string | number, args: any[]) => void;
-
     //内部接收调用请求的回调函数。
     onInvokeMessage: (functionName: string, args: any[]) => Promise<any>;
-
     //内部注册的网络异常回调函数。
     onConnectionError: (err: Error) => void;
 

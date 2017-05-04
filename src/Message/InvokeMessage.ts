@@ -4,7 +4,11 @@ import MessageType from './MessageType';
 import Message from "./Message";
 
 export default class InvokeMessage extends Message {
-    data: { callback: string, functionName: string, args: any[] };
+    data: {
+        callback: string,   //回调ID
+        functionName: string, //要调用的方法名
+        args: any[] //传递的参数数组
+    };
 
     /**
      * 创建一条调用消息

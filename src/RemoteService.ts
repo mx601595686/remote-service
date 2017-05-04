@@ -10,16 +10,13 @@ import SimpleEventEmiter from "./Tools/SimpleEventEmiter";
 abstract class RemoteService {
 
     private readonly port: RemoteServiceConnectionPort;
-
     //是否已经关闭服务了
     private hasClosed = false;
 
     //关闭服务服务回调
     protected abstract onClose(): Promise<void>;
-
     //执行服务代码回调
     protected abstract onExecuteCode(serviceCode: string): Promise<void>;
-
     //接受控制器发来的其他事件
     protected onInternalMessage: (eventName: string, args: any[]) => void;
 
@@ -48,21 +45,18 @@ abstract class RemoteService {
                     this.closeService();
                     break;
                 }
-                case InternalEventName.executeServiceCode: { //执行服务代码
+                case InternalEventName.executeServiceCode: { //执行控制器发来的服务代码
                     if (!hasExecuteServiceCode) {
                         hasExecuteServiceCode = true;
-                        if (this.onExecuteCode !== undefined) {
-                            this.onExecuteCode(args[0])
-                                .then(() => {
-                                    this.port.sendInternalMessage(InternalEventName.runningStateChange, RunningState.running);
-                                })
-                                .catch((err: Error) => {
-                                    this.port.sendInternalMessage(InternalEventName.remoteServiceError, { message: err.message, stack: err.stack });
-                                    this.closeService();
-                                });
-                        } else {
-                            this.port.sendInternalMessage(InternalEventName.runningStateChange, RunningState.running);
-                        }
+
+                        this.onExecuteCode(args[0])
+                            .then(() => {
+                                this.port.sendInternalMessage(InternalEventName.runningStateChange, RunningState.running);
+                            })
+                            .catch((err: Error) => {
+                                this.port.sendInternalMessage(InternalEventName.remoteServiceError, { message: err.message, stack: err.stack });
+                                this.closeService();
+                            });
                     }
                     break;
                 }
@@ -184,12 +178,10 @@ abstract class RemoteService {
         if (!this.hasClosed) {
             this.hasClosed = true;
             this.port.sendInternalMessage(InternalEventName.runningStateChange, RunningState.closing); //通知正在关闭
-            if (this.onClose !== undefined) {
-                try {
-                    await this.onClose();  //调用关闭回调方法
-                } catch (err) {
-                    this.port.sendInternalMessage(InternalEventName.remoteServiceError, { message: err.message, stack: err.stack });
-                }
+            try {
+                await this.onClose();  //调用关闭回调方法
+            } catch (err) {
+                this.port.sendInternalMessage(InternalEventName.remoteServiceError, { message: err.message, stack: err.stack });
             }
             this.port.sendInternalMessage(InternalEventName.runningStateChange, RunningState.closed);
         }

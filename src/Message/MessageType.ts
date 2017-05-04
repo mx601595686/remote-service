@@ -1,4 +1,6 @@
 
+//消息的类型
+
 enum MessageType{
     internal,   //服务控制器与远端服务之间传递的信息
     event,      //服务发出的事件消息

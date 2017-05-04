@@ -4,6 +4,10 @@ import MessageType from './MessageType';
 import Message from "./Message";
 import ServiceController from "../ServiceController";
 
+/*
+    内部消息只发送给消息控制器
+*/
+
 export default class InternalMessage extends Message {
 
     data: { eventName: string | number, args: any[] };

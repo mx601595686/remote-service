@@ -1,9 +1,9 @@
+//服务容器
+
 import ServiceController from './ServiceController';
 import RunningState from './Tools/RunningState';
 import ResourceUsageInformation from "./Tools/ResourceUsageInformation";
 import SimpleEventEmiter from './Tools/SimpleEventEmiter';
-
-//服务容器
 
 /*
 包含的事件
@@ -20,6 +20,8 @@ import SimpleEventEmiter from './Tools/SimpleEventEmiter';
 abstract class ServiceContainer extends SimpleEventEmiter {
     //服务控制器
     private controller: ServiceController;
+    //关闭超时计时器
+    private close_time_out: NodeJS.Timer;
 
     //服务运行状态
     runningState: RunningState = RunningState.closed;
@@ -29,6 +31,8 @@ abstract class ServiceContainer extends SimpleEventEmiter {
     stdout: { type: number, timestamp: number, content: string }[] = [];
     //最多保存多少条输出
     maxStdout = 10000;  //默认最多保存10000条
+    //关闭服务超时
+    closeTimeout = 1000 * 60;
     //资源消耗情况
     resourceUsage: ResourceUsageInformation;
 
@@ -42,6 +46,9 @@ abstract class ServiceContainer extends SimpleEventEmiter {
         super();
         if ('number' === typeof config.maxStdout)
             this.maxStdout = config.maxStdout;
+
+        if ('number' === typeof config.closeTimeout)
+            this.closeTimeout = config.closeTimeout;
     }
 
     /**
@@ -88,10 +95,10 @@ abstract class ServiceContainer extends SimpleEventEmiter {
             this.controller.onConnectionError = (err) => {
                 this.errors.push(err);
                 this.emit('error', err);
-                this.close();   //通知关闭
+                this.forceClose();   //强制关闭
             };
 
-            //服务执行错误
+            //远端服务发生错误
             this.controller.onRemoteServiceError = (err) => {
                 this.errors.push(err);
                 this.emit('error', err);
@@ -119,8 +126,10 @@ abstract class ServiceContainer extends SimpleEventEmiter {
             this.controller.onRunningStateChange = (state) => {
                 this.runningState = state;
                 this.emit('runningStateChange', state);
-                if (state === RunningState.closed)
+                if (state === RunningState.closed) {
+                    clearTimeout(this.close_time_out);
                     this.onDestroyEnvironment();
+                }
             };
 
             //更新远端资源消耗
@@ -139,6 +148,9 @@ abstract class ServiceContainer extends SimpleEventEmiter {
     close() {
         if (this.runningState !== RunningState.closed) {
             this.controller.closeService();
+            this.close_time_out = setTimeout(() => {
+                this.forceClose();
+            }, this.closeTimeout);
         }
     }
 
@@ -149,8 +161,9 @@ abstract class ServiceContainer extends SimpleEventEmiter {
      */
     async forceClose() {
         if (this.runningState !== RunningState.closed) {
-            await this.onDestroyEnvironment();
             this.runningState = RunningState.closed;
+            clearTimeout(this.close_time_out);
+            await this.onDestroyEnvironment();
             this.emit('runningStateChange', RunningState.closed);
         }
     }
