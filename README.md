@@ -4,7 +4,7 @@
 这样做是为了尽可能地提供灵活性，使它可以应用在更多地方。
 
 ## 结构图
-![structure picture](./img/structure.gif);
+![structure picture](./img/structure.gif)
 
 ## 标准规范介绍
 
