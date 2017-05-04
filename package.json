@@ -1,22 +1,15 @@
 {
   "name": "services-cluster",
   "version": "0.0.1",
-  "description": "A abstract implemention of creating JavaScript cluster application",
-  "main": "./bin/index.js",
-  "types": "./bin/index.d.ts",
+  "description": "A abstract implementation of creating JavaScript cluster application",
   "engines": {
     "node": ">=7.0.0"
   },
   "devDependencies": {
-    "@types/expect.js": "^0.3.29",
-    "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.13",
-    "expect.js": "^0.3.1",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^2.4.1",
     "gulp-typescript": "^3.1.5",
-    "mocha": "^3.2.0",
-    "ts-node": "^3.0.2",
     "typescript": "^2.2.2"
   },
   "repository": {
@@ -24,7 +17,7 @@
     "url": "git+https://github.com/mx601595686/services-cluster.git"
   },
   "keywords": [
-    "service",
+    "services",
     "cluster",
     "remote"
   ],

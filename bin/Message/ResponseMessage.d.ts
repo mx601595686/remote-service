@@ -3,7 +3,7 @@ import InvokeMessage from "./InvokeMessage";
 export default class ResponseMessage extends Message {
     data: {
         callback: string;
-        err: {
+        error: {
             message: string;
             stack: string;
         };

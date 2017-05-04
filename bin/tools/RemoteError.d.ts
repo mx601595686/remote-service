@@ -1,5 +1,5 @@
 export default class RemoteError extends Error {
-    constructor(err: {
+    constructor(error: {
         message: string;
         stack: string;
     });
